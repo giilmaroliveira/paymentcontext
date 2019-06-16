@@ -38,7 +38,7 @@ namespace PaymentContext.Domain.Commands
                 .HasMinLen(FirstName, 3, "Name.FirstName", "Nome deve conter pelo menos 3 caracteres")
                 .HasMinLen(LastName, 3, "LastName.FirstName", "Sobrenome deve conter pelo menos 3 caracteres")
                 .HasMinLen(FirstName, 40, "Name.FirstName", "Nome deve conter até 40 caracteres")
-            );
+            ); 
         }
     }
 }
