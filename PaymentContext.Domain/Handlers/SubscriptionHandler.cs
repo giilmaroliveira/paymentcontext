@@ -10,8 +10,8 @@ using PaymentContext.Shared.Handlers;
 
 namespace PaymentContext.Domain.Handlers
 {
-    public class SubscriptionHandler : 
-    Notifiable, 
+    public class SubscriptionHandler :
+    Notifiable,
     IHandler<CreateBoletoSubscriptionCommand>,
     IHandler<CreatePayPalSubscriptionCommand>
     {
@@ -51,23 +51,27 @@ namespace PaymentContext.Domain.Handlers
             var student = new Student(name, document, email);
             var subscription = new Subscription(DateTime.Now.AddMonths(1));
             var payment = new BoletoPayment(
-                command.BarCode, 
-                command.BoletoNumber,                
-                command.PaidDate, 
-                command.ExpireDate, 
-                command.Total, 
-                command.TotalPaid, 
-                command.Payer, 
-                new Document(command.PayerDocument, command.PayerDocumentType), 
-                address, 
+                command.BarCode,
+                command.BoletoNumber,
+                command.PaidDate,
+                command.ExpireDate,
+                command.Total,
+                command.TotalPaid,
+                command.Payer,
+                new Document(command.PayerDocument, command.PayerDocumentType),
+                address,
                 email);
 
             //Relacionamentos
             subscription.AddPayment(payment);
             student.AddSubscription(subscription);
 
-            // Aplicar as validações
+            // Agrupar as validações
             AddNotifications(name, document, email, student, subscription, payment);
+
+            // Checar as notificações
+            if (Invalid)
+                return new CommandResult(false, "Não foi possível realizar sua assinatura.");
 
             //Salvar as Informações
             _studentRepository.CreateSubscription(student);
@@ -100,24 +104,28 @@ namespace PaymentContext.Domain.Handlers
             var subscription = new Subscription(DateTime.Now.AddMonths(1));
             // Só muda a implementação do pagamento
             var payment = new PayPalPayment(
-                command.TransactionCode,              
-                command.PaidDate, 
-                command.ExpireDate, 
-                command.Total, 
-                command.TotalPaid, 
-                command.Payer, 
-                new Document(command.PayerDocument, command.PayerDocumentType), 
-                address, 
+                command.TransactionCode,
+                command.PaidDate,
+                command.ExpireDate,
+                command.Total,
+                command.TotalPaid,
+                command.Payer,
+                new Document(command.PayerDocument, command.PayerDocumentType),
+                address,
                 email);
 
-            //Relacionamentos
+            // Relacionamentos
             subscription.AddPayment(payment);
             student.AddSubscription(subscription);
 
-            // Aplicar as validações
+            // Agrupar as validações
             AddNotifications(name, document, email, student, subscription, payment);
 
-            //Salvar as Informações
+            // Checar as notificações
+            if (Invalid)
+                return new CommandResult(false, "Não foi possível realizar sua assinatura.");
+
+            // Salvar as Informações
             _studentRepository.CreateSubscription(student);
 
             // Enviar e-mail de boas vindas
